@@ -3,9 +3,9 @@ package collectors
 import (
 	"context"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/servicequotas"
-	"github.com/openshift/privatelink-infrastructure-monitor/pkg/aws"
 )
 
 const (
@@ -24,8 +24,8 @@ func (tg TransitGatewaysPerAcctCollector) Quota() (float64, error) {
 
 func (tg TransitGatewaysPerAcctCollector) Usage() (float64, error) {
 	transitGatewayOut, err := tg.Ec2Client.DescribeTransitGateways(context.TODO(), &ec2.DescribeTransitGatewaysInput{
-		DryRun:     aws.NewBoolPtr(false),
-		MaxResults: aws.NewInt32Ptr(100),
+		DryRun:     aws.Bool(false),
+		MaxResults: aws.Int32(100),
 		NextToken:  nil,
 	})
 	if err != nil {

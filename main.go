@@ -15,9 +15,10 @@ import (
 func main() {
 
 	var hostedZoneID = flag.String("hosted-zone-id", "", "ID of a checked hosted zone")
+	var region = flag.String("region", "", "Aws Region to run this in")
 	flag.Parse()
 	cfg, err := config.LoadDefaultConfig(context.TODO())
-	cfg.Region = "us-east-1"
+	cfg.Region = *region
 
 	if err != nil {
 		panic("config error, " + err.Error())
@@ -35,6 +36,11 @@ func main() {
 		ServiceQuotaClient: serviceQuotaClient,
 		R53Client:          r53Client,
 		HostedZoneID:       *hostedZoneID,
+	})
+	allCollectors = append(allCollectors, &collectors.Ipv4BlocksPerVPCCollector{
+		ServiceQuotaClient: serviceQuotaClient,
+		Ec2Client:          ec2Client,
+		VpcID:              "vpc-5bc7103e",
 	})
 
 	for _, col := range allCollectors {
