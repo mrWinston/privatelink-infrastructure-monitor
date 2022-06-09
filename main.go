@@ -14,8 +14,10 @@ import (
 
 func main() {
 
-	var hostedZoneID = flag.String("hosted-zone-id", "", "ID of a checked hosted zone")
+	var hostedZoneId = flag.String("hosted-zone-id", "", "ID of a checked hosted zone")
 	var region = flag.String("region", "", "Aws Region to run this in")
+	var vpcId = flag.String("vpc-id", "", "ID of a checked vpc")
+
 	flag.Parse()
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	cfg.Region = *region
@@ -35,12 +37,12 @@ func main() {
 	allCollectors = append(allCollectors, &collectors.Route53RecordsPerHostedZoneCollector{
 		ServiceQuotaClient: serviceQuotaClient,
 		R53Client:          r53Client,
-		HostedZoneID:       *hostedZoneID,
+		HostedZoneID:       *hostedZoneId,
 	})
 	allCollectors = append(allCollectors, &collectors.Ipv4BlocksPerVPCCollector{
 		ServiceQuotaClient: serviceQuotaClient,
 		Ec2Client:          ec2Client,
-		VpcID:              "vpc-5bc7103e",
+		VpcID:              *vpcId,
 	})
 
 	for _, col := range allCollectors {
