@@ -5,8 +5,10 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/aws/aws-sdk-go-v2/service/route53"
 	"github.com/aws/aws-sdk-go-v2/service/servicequotas"
 	"github.com/openshift/privatelink-infrastructure-monitor/pkg/collectors"
@@ -29,6 +31,25 @@ func main() {
 	serviceQuotaClient := servicequotas.NewFromConfig(cfg)
 	r53Client := route53.NewFromConfig(cfg)
 	allCollectors := []collectors.QuotaCollector{}
+
+	routeTables, err := ec2Client.DescribeRouteTables(context.TODO(), &ec2.DescribeRouteTablesInput{
+		Filters: []types.Filter{{
+			Name:   aws.String("vpc-id"),
+			Values: []string{*vpcId},
+		}},
+	})
+	if err != nil {
+		fmt.Println("Could not retrieve route tables for VPC, can not monitor the quotas.")
+	} else {
+		for i, _ := range routeTables.RouteTables {
+			routeTable := routeTables.RouteTables[i]
+			allCollectors = append(allCollectors, &collectors.RoutesPerRouteTableCollector{
+				ServiceQuotaClient: serviceQuotaClient,
+				Ec2Client:          ec2Client,
+				RouteTableID:       *routeTable.RouteTableId,
+			})
+		}
+	}
 
 	allCollectors = append(allCollectors, &collectors.TransitGatewaysPerAcctCollector{
 		ServiceQuotaClient: serviceQuotaClient,

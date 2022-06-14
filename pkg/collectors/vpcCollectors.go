@@ -12,9 +12,35 @@ import (
 
 const (
 	QUOTA_ROUTE_TABLES_PER_VPC     string = "L-589F43AA"
+	QUOTA_ROUTES_PER_ROUTE_TABLE   string = "L-93826ACB"
 	QUOTA_CODE_IPV4_BLOCKS_PER_VPC string = "L-83CA0A9D"
 	SERVICE_CODE_VPC               string = "vpc"
 )
+
+type RoutesPerRouteTableCollector struct {
+	ServiceQuotaClient *servicequotas.Client
+	Ec2Client          *ec2.Client
+	RouteTableID       string
+}
+
+func (c RoutesPerRouteTableCollector) Quota() (float64, error) {
+	return GetQuotaValue(c.ServiceQuotaClient, SERVICE_CODE_VPC, QUOTA_ROUTES_PER_ROUTE_TABLE)
+}
+
+func (c RoutesPerRouteTableCollector) Usage() (float64, error) {
+	descRouteTableOutput, err := c.Ec2Client.DescribeRouteTables(context.TODO(), &ec2.DescribeRouteTablesInput{
+		RouteTableIds: []string{c.RouteTableID},
+	})
+	if err != nil {
+		return 0, err
+	}
+	numRoutes := len(descRouteTableOutput.RouteTables[0].Routes)
+	return float64(numRoutes), nil
+}
+
+func (c RoutesPerRouteTableCollector) Name() string {
+	return "routes_per_route_table_" + c.RouteTableID
+}
 
 type RouteTablesPerVPCCollector struct {
 	ServiceQuotaClient *servicequotas.Client
