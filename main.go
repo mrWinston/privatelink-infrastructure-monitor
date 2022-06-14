@@ -70,6 +70,11 @@ func main() {
 		Ec2Client:          ec2Client,
 		VpcID:              *vpcId,
 	})
+	allCollectors = append(allCollectors, &collectors.InterfaceVpcEndpointsPerVpc{
+		ServiceQuotaClient: serviceQuotaClient,
+		Ec2Client:          ec2Client,
+		VpcID:              *vpcId,
+	})
 
 	for _, col := range allCollectors {
 		quota, err := col.Quota()

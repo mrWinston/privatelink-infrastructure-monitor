@@ -11,11 +11,40 @@ import (
 )
 
 const (
-	QUOTA_ROUTE_TABLES_PER_VPC     string = "L-589F43AA"
-	QUOTA_ROUTES_PER_ROUTE_TABLE   string = "L-93826ACB"
-	QUOTA_CODE_IPV4_BLOCKS_PER_VPC string = "L-83CA0A9D"
-	SERVICE_CODE_VPC               string = "vpc"
+	QUOTA_INTERFACE_VPC_ENDPOINTS_PER_VPC string = "L-29B6F2EB"
+	QUOTA_ROUTE_TABLES_PER_VPC            string = "L-589F43AA"
+	QUOTA_ROUTES_PER_ROUTE_TABLE          string = "L-93826ACB"
+	QUOTA_CODE_IPV4_BLOCKS_PER_VPC        string = "L-83CA0A9D"
+	SERVICE_CODE_VPC                      string = "vpc"
 )
+
+type InterfaceVpcEndpointsPerVpc struct {
+	ServiceQuotaClient *servicequotas.Client
+	Ec2Client          *ec2.Client
+	VpcID              string
+}
+
+func (c InterfaceVpcEndpointsPerVpc) Quota() (float64, error) {
+	return GetQuotaValue(c.ServiceQuotaClient, SERVICE_CODE_VPC, QUOTA_INTERFACE_VPC_ENDPOINTS_PER_VPC)
+}
+
+func (c InterfaceVpcEndpointsPerVpc) Usage() (float64, error) {
+	describeVpcEndpointsOutput, err := c.Ec2Client.DescribeVpcEndpoints(context.TODO(), &ec2.DescribeVpcEndpointsInput{
+		Filters: []types.Filter{{
+			Name:   aws.String("vpc-id"),
+			Values: []string{c.VpcID},
+		}},
+	})
+	if err != nil {
+		return 0, err
+	}
+	numEndpoints := len(describeVpcEndpointsOutput.VpcEndpoints)
+	return float64(numEndpoints), nil
+}
+
+func (c InterfaceVpcEndpointsPerVpc) Name() string {
+	return "interface_vpc_endpoints_per_vpc_" + c.VpcID
+}
 
 type RoutesPerRouteTableCollector struct {
 	ServiceQuotaClient *servicequotas.Client
