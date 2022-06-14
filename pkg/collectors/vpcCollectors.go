@@ -11,6 +11,7 @@ import (
 )
 
 const (
+	QUOTA_VPCS_PER_REGION                 string = "L-F678F1CE"
 	QUOTA_SUBNETS_PER_VPC                 string = "L-407747CB"
 	QUOTA_INTERFACE_VPC_ENDPOINTS_PER_VPC string = "L-29B6F2EB"
 	QUOTA_ROUTE_TABLES_PER_VPC            string = "L-589F43AA"
@@ -18,6 +19,28 @@ const (
 	QUOTA_CODE_IPV4_BLOCKS_PER_VPC        string = "L-83CA0A9D"
 	SERVICE_CODE_VPC                      string = "vpc"
 )
+
+type VpcsPerRegion struct {
+	ServiceQuotaClient *servicequotas.Client
+	Ec2Client          *ec2.Client
+	Region             string
+}
+
+func (c VpcsPerRegion) Quota() (float64, error) {
+	return GetQuotaValue(c.ServiceQuotaClient, SERVICE_CODE_VPC, QUOTA_VPCS_PER_REGION)
+}
+
+func (c VpcsPerRegion) Usage() (float64, error) {
+	describeVpcsOutput, err := c.Ec2Client.DescribeVpcs(context.TODO(), &ec2.DescribeVpcsInput{})
+	if err != nil {
+		return 0, err
+	}
+	return float64(len(describeVpcsOutput.Vpcs)), nil
+}
+
+func (c VpcsPerRegion) Name() string {
+	return "vpc_per_region_" + c.Region
+}
 
 type SubnetsPerVpc struct {
 	ServiceQuotaClient *servicequotas.Client

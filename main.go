@@ -80,6 +80,11 @@ func main() {
 		Ec2Client:          ec2Client,
 		VpcID:              *vpcId,
 	})
+	allCollectors = append(allCollectors, &collectors.VpcsPerRegion{
+		ServiceQuotaClient: serviceQuotaClient,
+		Ec2Client:          ec2Client,
+		Region:             *region,
+	})
 
 	for _, col := range allCollectors {
 		quota, err := col.Quota()
