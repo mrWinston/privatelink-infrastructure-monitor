@@ -11,6 +11,8 @@ type QuotaCollector interface {
 	Quota() (float64, error)
 	Usage() (float64, error)
 	Name() string
+	Id() string
+	MetricName() string
 }
 
 // GetQuotaValue returns the value of an AWS  Quota as identified by the given service and quota code

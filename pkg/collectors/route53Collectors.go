@@ -37,6 +37,14 @@ func (c Route53RecordsPerHostedZoneCollector) Usage() (float64, error) {
 	return float64(getLimitOut.Count), nil
 }
 
+func (c Route53RecordsPerHostedZoneCollector) Id() string {
+	return "hosted_zone_" + c.HostedZoneID
+}
+
+func (c Route53RecordsPerHostedZoneCollector) MetricName() string {
+	return "resource_records_per_hosted_zone"
+}
+
 func (c Route53RecordsPerHostedZoneCollector) Name() string {
 	return "resource_records_per_hosted_zone_" + c.HostedZoneID
 }

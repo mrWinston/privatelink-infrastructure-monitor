@@ -38,8 +38,16 @@ func (c VpcsPerRegion) Usage() (float64, error) {
 	return float64(len(describeVpcsOutput.Vpcs)), nil
 }
 
+func (c VpcsPerRegion) Id() string {
+	return "region_" + c.Region
+}
+
+func (c VpcsPerRegion) MetricName() string {
+	return "vpcs_per_region"
+}
+
 func (c VpcsPerRegion) Name() string {
-	return "vpc_per_region_" + c.Region
+	return "vpcs_per_region_" + c.Region
 }
 
 type SubnetsPerVpc struct {
@@ -63,6 +71,14 @@ func (c SubnetsPerVpc) Usage() (float64, error) {
 		return 0, err
 	}
 	return float64(len(describeSubnetsOutput.Subnets)), nil
+}
+
+func (c SubnetsPerVpc) Id() string {
+	return "vpc_" + c.VpcID
+}
+
+func (c SubnetsPerVpc) MetricName() string {
+	return "subnets_per_vpc"
 }
 
 func (c SubnetsPerVpc) Name() string {
@@ -93,6 +109,14 @@ func (c InterfaceVpcEndpointsPerVpc) Usage() (float64, error) {
 	return float64(numEndpoints), nil
 }
 
+func (c InterfaceVpcEndpointsPerVpc) Id() string {
+	return "vpc_" + c.VpcID
+}
+
+func (c InterfaceVpcEndpointsPerVpc) MetricName() string {
+	return "interface_vpc_endpoints_per_vpc"
+}
+
 func (c InterfaceVpcEndpointsPerVpc) Name() string {
 	return "interface_vpc_endpoints_per_vpc_" + c.VpcID
 }
@@ -116,6 +140,14 @@ func (c RoutesPerRouteTableCollector) Usage() (float64, error) {
 	}
 	numRoutes := len(descRouteTableOutput.RouteTables[0].Routes)
 	return float64(numRoutes), nil
+}
+
+func (c RoutesPerRouteTableCollector) Id() string {
+	return "route_table_" + c.RouteTableID
+}
+
+func (c RoutesPerRouteTableCollector) MetricName() string {
+	return "routes_per_route_table_collector"
 }
 
 func (c RoutesPerRouteTableCollector) Name() string {
@@ -147,6 +179,14 @@ func (c RouteTablesPerVPCCollector) Usage() (float64, error) {
 	return float64(numRTB), nil
 }
 
+func (c RouteTablesPerVPCCollector) Id() string {
+	return "vpc_" + c.VpcID
+}
+
+func (c RouteTablesPerVPCCollector) MetricName() string {
+	return "route_tables_per_vpc"
+}
+
 func (c RouteTablesPerVPCCollector) Name() string {
 	return "route_tables_per_vpc_" + c.VpcID
 }
@@ -175,6 +215,14 @@ func (c Ipv4BlocksPerVPCCollector) Usage() (float64, error) {
 	}
 
 	return float64(len(descVpcOut.Vpcs[0].CidrBlockAssociationSet)), nil
+}
+
+func (c Ipv4BlocksPerVPCCollector) Id() string {
+	return "vpc_" + c.VpcID
+}
+
+func (c Ipv4BlocksPerVPCCollector) MetricName() string {
+	return "ipv4_blocks_per_vpc"
 }
 
 func (c Ipv4BlocksPerVPCCollector) Name() string {

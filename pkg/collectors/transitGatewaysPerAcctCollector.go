@@ -34,6 +34,14 @@ func (tg TransitGatewaysPerAcctCollector) Usage() (float64, error) {
 	return float64(len(transitGatewayOut.TransitGateways)), nil
 }
 
+func (tg TransitGatewaysPerAcctCollector) Id() string {
+	return "all"
+}
+
+func (tg TransitGatewaysPerAcctCollector) MetricName() string {
+	return "transit_gateways_per_account"
+}
+
 func (tg TransitGatewaysPerAcctCollector) Name() string {
 	return "transit_gateways_per_account"
 }
